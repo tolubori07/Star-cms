@@ -61,11 +61,14 @@
   --shadow-shadow: var(--shadow);
   --font-weight-base: 600;
   --font-weight-heading: 900;
+  --font-heading: var(--font-bungee);
+  --font-mono: var(--font-jetbrains);
+  --font-main: var(--font-inter);
 }
 
 @layer base {
   body {
-    @apply text-foreground font-base bg-background;
+    @apply text-foreground bg-background;
   }
 
   h1,
