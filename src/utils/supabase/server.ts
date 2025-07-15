@@ -1,3 +1,4 @@
+import { prisma } from "@/db/prisma";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -27,4 +28,34 @@ export async function createClient() {
     },
   );
   return client;
+}
+
+export const getUser = async () => {
+  const { auth } = await createClient();
+  const userObject = await auth.getUser();
+
+  if (userObject.error) {
+    console.error(userObject.error);
+    return null;
+  }
+
+  console.log("Supabase user:", userObject.data.user); // ← log here
+  return userObject.data.user;
+};
+
+export async function getUserOrCreate() {
+  const supabaseUser = await getUser();
+
+  if (!supabaseUser) return null;
+
+  const dbUser = await prisma.user.upsert({
+    where: { email: supabaseUser.email },
+    update: {}, // no update
+    create: {
+      id: supabaseUser.id,
+      email: supabaseUser.email,
+      name: supabaseUser.user_metadata?.name ?? null,
+    },
+  });
+  return dbUser;
 }

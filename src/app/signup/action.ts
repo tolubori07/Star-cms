@@ -1,24 +1,23 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { prisma } from "@/db/prisma";
 
-export async function signup(formData: FormData) {
+export const signup = async (formData: FormData) => {
   const supabase = await createClient();
 
-  const data = {
-    username: formData.get("username") as string,
+  const userData = {
+    name: formData.get("name") as string,
     email: formData.get("email") as string,
     password: formData.get("password") as string,
   };
 
-  const { error } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
+  const { error, data } = await supabase.auth.signUp({
+    email: userData.email,
+    password: userData.password,
     options: {
       data: {
-        username: data.username,
+        username: userData.name,
       },
     },
   });
@@ -26,10 +25,15 @@ export async function signup(formData: FormData) {
   if (error) {
     return { error: error.message };
   }
+  const userID = data.user?.id;
+  if (!userID) throw new Error("Error signing up");
 
-  // Optionally redirect after successful signup
-  // revalidatePath("/", "layout");
-  // redirect("/account");
-
+  await prisma.user.create({
+    data: {
+      id: userID,
+      email: userData.email,
+      name: userData.name 
+    },
+  });
   return { success: true };
-}
+};

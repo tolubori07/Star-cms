@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.email({ message: "Please enter a valid email" }),
@@ -24,6 +25,7 @@ const formSchema = z.object({
 });
 
 const Page = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,7 +45,7 @@ const Page = () => {
         classNames: { description: "!text-black" },
       });
       // Optionally redirect
-      window.location.href = "/";
+      router.push("/dashboard");
     }
   };
 
@@ -95,4 +97,4 @@ const Page = () => {
     </div>
   );
 };
-export default Page
+export default Page;

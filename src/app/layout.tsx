@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Mono, Bungee } from "next/font/google";
 import "./globals.css";
-import NavBar from "@/components/NavBar";
 import { Toaster } from "@/components/ui/sonner";
+import NavBarServer from "@/components/NavBarServer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,10 +33,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${jetbrains.variable} ${bungee.variable} antialiased`}
+        className={`${inter.variable} ${jetbrains.variable} ${bungee.variable} antialiased `}
       >
-        <NavBar />
+        <NavBarServer />
+        <main className="px-16">
         {children}
+        </main>
         <Toaster />
       </body>
     </html>

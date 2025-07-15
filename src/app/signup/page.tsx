@@ -21,7 +21,7 @@ import { toast } from "sonner";
 const formSchema = z
   .object({
     email: z.email({ message: "Please enter a valid email" }),
-    username: z.string().min(2, {
+    name: z.string().min(2, {
       message: "Username must be at least 2 characters.",
     }),
     password: z
@@ -42,7 +42,7 @@ export default function Page() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -53,7 +53,7 @@ export default function Page() {
   const formData = new FormData();
   formData.append("email", values.email);
   formData.append("password", values.password);
-  formData.append("username", values.username);
+  formData.append("name", values.name);
 
   const result = await signup(formData);
 
@@ -91,7 +91,7 @@ export default function Page() {
           />
           <FormField
             control={form.control}
-            name="username"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username</FormLabel>
