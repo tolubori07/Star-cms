@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { prisma } from "@/db/prisma";
 import { getUserOrCreate } from "@/utils/supabase/server";
 
@@ -24,13 +24,16 @@ export async function createProject(formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
 
-  if (!name) return;
-
-  await prisma.project.create({
-    data: {
-      name,
-      description: description || "",
-      ownerId: user?.id,
-    },
-  });
+  if (!name) return { error: "A name must be provided for the project" };
+  try {
+    await prisma.project.create({
+      data: {
+        name,
+        description: description || "",
+        ownerId: user?.id,
+      },
+    });
+  } catch (error) {
+    return { error: error };
+  }
 }

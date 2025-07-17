@@ -17,6 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CreateProjectForm({
   initialProjects,
@@ -26,7 +28,8 @@ export default function CreateProjectForm({
   const [pending, startTransition] = useTransition();
   const [projects, setProjects] = useOptimistic(initialProjects);
   const [formState, setFormState] = useState({ name: "", description: "" });
-
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -36,13 +39,21 @@ export default function CreateProjectForm({
       description: formState.description,
     };
 
-    setProjects((prev) => [...prev, tempProject]);
-
     startTransition(async () => {
+      setProjects((prev) => [...prev, tempProject]);
       const formData = new FormData();
       formData.append("name", formState.name);
       formData.append("description", formState.description);
-      await createProject(formData);
+      const res = await createProject(formData).then(() => setOpen(false));
+      //@ts-ignore
+      if (res?.error)
+        //@ts-ignore
+        toast.error("Error creating project", { description: res?.error });
+      router.refresh();
+      toast.success("Project created", {
+        description: "Project has been created successfully",
+        classNames: { description: "!text-black" },
+      });
     });
 
     setFormState({ name: "", description: "" });
@@ -50,7 +61,7 @@ export default function CreateProjectForm({
 
   return (
     <>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <div>
             <Button>
