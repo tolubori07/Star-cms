@@ -1,36 +1,25 @@
-import { Button } from "@/components/ui/button";
-import { LucidePlus } from "lucide-react";
+import { getUserOrCreate } from "@/utils/supabase/server";
 import { getUserProjects } from "./utils";
-import { getUser, getUserOrCreate } from "@/utils/supabase/server";
+import CreateProjectForm from "@/components/CreateProjectForm";
+import ProjectList from "@/components/ProjectList";
 
 const Page = async () => {
   const user = await getUserOrCreate();
   const projects = await getUserProjects(user?.id);
-  return (
-    <div>
-      <div className="">
-        <Button>
-          New Project
-          <LucidePlus />
-        </Button>
-      </div>
 
+  return (
+    <div className="p-4">
+      <CreateProjectForm initialProjects={projects} />
       {projects.length === 0 ? (
         <h2 className="text-xl font-main font-bold text-center mt-4">
-          Your dashboard’s feeling lonely... Give it some love with a new
-          project.
+          Your dashboard’s feeling lonely... Give it some love with a new project.
         </h2>
       ) : (
-        <ul className="mt-4 space-y-2">
-          {projects.map((p) => (
-            <li key={p.id} className="text-center font-main text-lg">
-              {p.name}
-            </li>
-          ))}
-        </ul>
+        <ProjectList projects={projects} />
       )}
     </div>
   );
 };
 
 export default Page;
+

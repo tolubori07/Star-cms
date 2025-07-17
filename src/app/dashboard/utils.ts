@@ -1,13 +1,12 @@
+"use server"
 import { prisma } from "@/db/prisma";
+import { getUserOrCreate } from "@/utils/supabase/server";
 
-export async function getUserProjects(
-  userId: string,
-): Promise<
+export async function getUserProjects(userId: string): Promise<
   {
     name: string;
     id: string;
     createdAt: Date;
-    slug: string;
     description: string | null;
     ownerId: string;
   }[]
@@ -18,4 +17,20 @@ export async function getUserProjects(
     },
   });
   return projects;
+}
+
+export async function createProject(formData: FormData) {
+  const user = await getUserOrCreate();
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+
+  if (!name) return;
+
+  await prisma.project.create({
+    data: {
+      name,
+      description: description || "",
+      ownerId: user?.id,
+    },
+  });
 }

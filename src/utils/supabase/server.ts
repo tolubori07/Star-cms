@@ -39,7 +39,6 @@ export const getUser = async () => {
     return null;
   }
 
-  console.log("Supabase user:", userObject.data.user); // ← log here
   return userObject.data.user;
 };
 

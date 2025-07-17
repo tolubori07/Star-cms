@@ -20,7 +20,6 @@ model User {
 model Project {
   id          String   @id @default(uuid()) @db.Uuid  
   name        String
-  slug        String   @unique
   description String?
   createdAt   DateTime @default(now())
   ownerId     String   @db.Uuid

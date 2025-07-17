@@ -13,13 +13,14 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mt-8 space-y-4 grid grid-cols-4 gap-4">
       {projects.map((p) => (
         <ProjectItem
           key={p.id}
           name={p.name}
+          //@ts-ignore
           description={p.description}
-          slug={p.slug}
+          id={p.id}
         />
       ))}
     </div>
