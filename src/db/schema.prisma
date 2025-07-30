@@ -18,36 +18,68 @@ model User {
 }
 
 model Project {
-  id          String   @id @default(uuid()) @db.Uuid  
+  id          String       @id @default(uuid()) @db.Uuid
   name        String
   description String?
-  createdAt   DateTime @default(now())
-  ownerId     String   @db.Uuid
-  owner       User     @relation(fields: [ownerId], references: [id])
+  createdAt   DateTime     @default(now())
+  ownerId     String       @db.Uuid
+  owner       User         @relation(fields: [ownerId], references: [id])
   collections Collection[]
   apiKeys     ApiKey[]
+  Model       Model[]
 }
 
 model Collection {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
-  slug      String
   createdAt DateTime @default(now())
 
-  projectId String   @db.Uuid
-  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id])
 
   entries Entry[]
 }
 
-model Entry {
-  id        String   @id @default(uuid()) @db.Uuid
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  data      Json
+model Model {
+  id        String            @id @default(uuid()) @db.Uuid
+  name      String
+  fields    FieldDefinition[] // <-- linked instead of raw JSON
+  projectId String            @db.Uuid
+  project   Project           @relation(fields: [projectId], references: [id])
+  entries   Entry[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
 
-  collectionId String      @db.Uuid
-  collection   Collection  @relation(fields: [collectionId], references: [id])
+model Entry {
+  id           String     @id @default(uuid()) @db.Uuid
+  name         String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  data         Json
+  collectionId String     @db.Uuid
+  collection   Collection @relation(fields: [collectionId], references: [id])
+  modelId      String     @db.Uuid
+  model        Model      @relation(fields: [modelId], references: [id])
+}
+
+model FieldDefinition {
+  id          String    @id @default(uuid()) @db.Uuid
+  model       Model     @relation(fields: [modelId], references: [id])
+  modelId     String    @db.Uuid
+  name        String
+  label       String
+  type        FieldType
+  required    Boolean   @default(false)
+  placeholder String?
+}
+
+enum FieldType {
+  string
+  number
+  boolean
+  text
+  date
 }
 
 model ApiKey {
@@ -55,10 +87,9 @@ model ApiKey {
   key       String   @unique
   createdAt DateTime @default(now())
 
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id])
 
-  projectId String   @db.Uuid
-  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id])
 }
-

@@ -17,7 +17,7 @@ export const signup = async (formData: FormData) => {
     password: userData.password,
     options: {
       data: {
-        username: userData.name,
+        name: userData.name,
       },
     },
   });
@@ -32,7 +32,7 @@ export const signup = async (formData: FormData) => {
     data: {
       id: userID,
       email: userData.email,
-      name: userData.name 
+      name: userData.name,
     },
   });
   return { success: true };

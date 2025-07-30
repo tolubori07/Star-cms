@@ -13,7 +13,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
   }
 
   return (
-    <div className="mt-8 grid grid-cols-6 gap-4">
+    <div className="mt-8 grid grid-cols-3 gap-4 2xl:grid-cols-3 xl:grid-cols-3 md:grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 xs:grid-cols-1">
       {projects.map((p) => (
         <ProjectItem
           key={p.id}
@@ -26,4 +26,3 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
     </div>
   );
 }
-

@@ -1,7 +1,6 @@
 "use client";
 
 import { useOptimistic, useState, useTransition } from "react";
-import { createProject } from "@/app/dashboard/utils";
 import { Button } from "@/components/ui/button";
 import { LucidePlus } from "lucide-react";
 import {
@@ -16,54 +15,51 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
-export default function CreateProjectForm({
-  initialProjects,
-}: {
-  initialProjects: any[];
-}) {
+import { createEntry } from "@/app/collections/utils";
+type Props = {
+  initialEntries: any[];
+  collectionId: string;
+};
+export default function CreateEntryForm({
+  collectionId,
+  initialEntries,
+}: Props) {
   const [pending, startTransition] = useTransition();
-  const [projects, setProjects] = useOptimistic(initialProjects);
-  const [formState, setFormState] = useState({ name: "", description: "" });
+  const [entries, setEntries] = useOptimistic(initialEntries);
+  const [formState, setFormState] = useState({ name: "" });
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const tempProject = {
+    const tempEntry = {
       id: crypto.randomUUID(), // temporary
       name: formState.name,
-      description: formState.description,
     };
 
     startTransition(async () => {
+      setEntries((prev) => [...prev, tempEntry]);
       const formData = new FormData();
       formData.append("name", formState.name);
-      formData.append("description", formState.description);
+      const res = await createEntry(formData, collectionId);
 
-      const res = await createProject(formData);
-
-      // Check for error before proceeding
       if (res?.error) {
-        toast.error("Error creating project", { description: res.error });
+        toast.error("Error creating entry", { description: res.error });
+        console.error(res.error);
         return;
       }
 
-      // Add optimistic project only if success
-      setProjects((prev) => [...prev, tempProject]);
-      setOpen(false);
+      setOpen(false); // Only close if successful
       router.refresh();
-
-      toast.success("Project created", {
-        description: "Project has been created successfully",
+      toast.success("Entry created", {
+        description: "Entry has been created successfully",
         classNames: { description: "!text-black" },
       });
     });
 
-    setFormState({ name: "", description: "" });
+    setFormState({ name: "" });
   };
 
   return (
@@ -72,7 +68,7 @@ export default function CreateProjectForm({
         <DialogTrigger asChild>
           <div className="w-fit">
             <Button>
-              New Project
+              New Entry
               <LucidePlus className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -80,35 +76,23 @@ export default function CreateProjectForm({
         <DialogContent className="sm:max-w-[425px]">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Create A new project</DialogTitle>
+              <DialogTitle>Create A new entry</DialogTitle>
               <DialogDescription>
-                Fill out the form's details to start a new project
+                Fill out the form's details to create a new entry
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="name">Project name</Label>
+                <Label htmlFor="name">Entry name</Label>
                 <Input
                   id="name"
                   name="name"
-                  placeholder="project name"
+                  placeholder="Entry name"
                   value={formState.name}
                   onChange={(e) =>
                     setFormState({ ...formState, name: e.target.value })
                   }
                   required
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="description">Project description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  placeholder="description..."
-                  value={formState.description}
-                  onChange={(e) =>
-                    setFormState({ ...formState, description: e.target.value })
-                  }
                 />
               </div>
             </div>
@@ -117,7 +101,7 @@ export default function CreateProjectForm({
                 <Button variant="neutral">Cancel</Button>
               </DialogClose>
               <Button type="submit" disabled={pending}>
-                {pending ? "Creating..." : "Create project"}
+                {pending ? "Creating..." : "Create entry"}
               </Button>
             </DialogFooter>
           </form>

@@ -3,6 +3,9 @@ import { Inter, JetBrains_Mono, Space_Mono, Bungee } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import NavBarServer from "@/components/NavBarServer";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import AppSideBarServer from "@/components/AppSideBarServer";
+import NavBar from "@/components/NavBarClient";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,8 +24,8 @@ const bungee = Bungee({
 });
 
 export const metadata: Metadata = {
-  title: "Brutalist-CMS",
-  description: "A neobrutalist first CMS",
+  title: "Star-CMS",
+  description: "A CMS for Stars",
 };
 
 export default function RootLayout({
@@ -35,11 +38,16 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrains.variable} ${bungee.variable} antialiased `}
       >
-        <NavBarServer />
-        <main className="px-16">
-        {children}
-        </main>
-        <Toaster />
+        <SidebarProvider>
+          <AppSideBarServer />
+          <SidebarInset className="bg-bg">
+            <NavBar />
+            <main className="px-4 pt-4">
+              {children}
+            </main>
+            <Toaster />
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
   );
