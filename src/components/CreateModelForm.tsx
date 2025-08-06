@@ -17,19 +17,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createCollection } from "@/app/projects/utils";
+import { createModel } from "@/app/projects/utils";
 type Props = {
-  initialCollections: any[];
+  initialModels: any[];
   projectId: string;
-  userId: string|undefined;
+  userId: string | undefined;
 };
-export default function CreateCollectionForm({
-  initialCollections,
+export default function CreateModelForm({
+  initialModels,
   projectId,
   userId,
 }: Props) {
   const [pending, startTransition] = useTransition();
-  const [collections, setCollections] = useOptimistic(initialCollections);
+  const [models, setModels] = useOptimistic(initialModels);
   const [formState, setFormState] = useState({ name: "" });
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -42,19 +42,19 @@ export default function CreateCollectionForm({
     };
 
     startTransition(async () => {
-      setCollections((prev) => [...prev, tempProject]);
+      setModels((prev) => [...prev, tempProject]);
       const formData = new FormData();
       formData.append("name", formState.name);
-      const res = await createCollection(formData, projectId).then(() =>
-        setOpen(false),
+      const res = await createModel(projectId, formData).then(() =>
+        setOpen(false)
       );
       //@ts-ignore
       if (res?.error)
         //@ts-ignore
-        toast.error("Error creating collection", { description: res?.error });
+        toast.error("Error creating model", { description: res?.error });
       router.refresh();
-      toast.success("Collection created", {
-        description: "Collection has been created successfully",
+      toast.success("Model created", {
+        description: "Model has been created successfully",
         classNames: { description: "!text-black" },
       });
     });
@@ -68,7 +68,7 @@ export default function CreateCollectionForm({
         <DialogTrigger asChild>
           <div className="w-fit">
             <Button>
-              New Collection
+              New Model
               <LucidePlus className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -76,18 +76,18 @@ export default function CreateCollectionForm({
         <DialogContent className="sm:max-w-[425px]">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Create A new collection</DialogTitle>
+              <DialogTitle>Create A new model</DialogTitle>
               <DialogDescription>
-                Fill out the form's details to create a new collection
+                Fill out the form's details to create a new model{" "}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-3">
-                <Label htmlFor="name">Collection name</Label>
+                <Label htmlFor="name">Model name</Label>
                 <Input
                   id="name"
                   name="name"
-                  placeholder="Collection name"
+                  placeholder="Model name"
                   value={formState.name}
                   onChange={(e) =>
                     setFormState({ ...formState, name: e.target.value })
@@ -101,7 +101,7 @@ export default function CreateCollectionForm({
                 <Button variant="neutral">Cancel</Button>
               </DialogClose>
               <Button type="submit" disabled={pending}>
-                {pending ? "Creating..." : "Create collection"}
+                {pending ? "Creating..." : "Create model"}
               </Button>
             </DialogFooter>
           </form>
