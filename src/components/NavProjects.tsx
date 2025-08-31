@@ -15,7 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Folders } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -25,7 +25,7 @@ type Props = {
 const NavProjects = ({ projects }: Props) => {
   return (
     <SidebarGroup>
-      <Link href={'/dashboard'}><SidebarGroupLabel>Projects</SidebarGroupLabel></Link>
+      <Link href={'/dashboard'}><SidebarGroupLabel><Folders className="mr-2"/>Projects</SidebarGroupLabel></Link>
       <SidebarMenu>
         {projects.map((project) => (
           <Collapsible key={project.id} asChild className="group/collapsible">

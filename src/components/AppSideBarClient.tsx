@@ -10,6 +10,7 @@ import {
 import LogoutButton from "./LogoutButton";
 import { Project } from "@prisma/client";
 import NavProjects from "./NavProjects";
+import NavModels from "./NavModels";
 import { Stars } from "lucide-react";
 import Link from "next/link";
 
@@ -29,6 +30,8 @@ const AppSidebarClient = ({ Projects }: Props) => {
       <SidebarContent>
         {/*@ts-ignore*/}
         <NavProjects projects={Projects} />
+        {/*@ts-ignore*/}
+        <NavModels projects={Projects} />
       </SidebarContent>
       <SidebarFooter>
         <LogoutButton />

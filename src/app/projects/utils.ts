@@ -1,6 +1,5 @@
 "use server";
 import { prisma } from "@/db/prisma";
-import { getUserOrCreate } from "@/utils/supabase/server";
 
 export const getProject = async (
   projectId: string,
@@ -36,19 +35,7 @@ export async function getCollections(projectId: string): Promise<
   return collections;
 }
 
-export async function getModels(projectId: string|undefined): Promise<
-  {
-    name: string;
-    id: string;
-  }[]
-> {
-  const models = await prisma.model.findMany({
-    where: {
-      projectId: projectId,
-    },
-  });
-  return models;
-}
+
 
 export async function createCollection(formData: FormData, projectId: string) {
   const name = formData.get("name") as string;
@@ -66,29 +53,22 @@ export async function createCollection(formData: FormData, projectId: string) {
   }
 }
 
-export async function createModel(projectId: string, formData: FormData) {
-  const name = formData.get("name") as string;
-  if (!name) return { error: "A name must be provided for the model" };
-  try {
-    await prisma.model.create({
-      data: {
-        name,
-        projectId,
-      },
-    });
-  } catch (error) {
-    return { error: error };
-  }
-}
 
-export async function getUserProjectsWithCollectionsandModels(
+export async function getUserProjectsWithCollectionsAndModels(
   userId: string | undefined,
 ) {
-  return await prisma.project.findMany({
+  if (!userId) return [];
+
+  const projects = await prisma.project.findMany({
     where: { ownerId: userId },
     include: {
-      collections: true,
-      Model: true,
+      collections: {
+        include: {
+          Model: true,
+          entries: true, // optional, entries directly under collections
+        },
+      },
     },
   });
+  return projects;
 }

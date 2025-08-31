@@ -26,29 +26,26 @@ model Project {
   owner       User         @relation(fields: [ownerId], references: [id])
   collections Collection[]
   apiKeys     ApiKey[]
-  Model       Model[]
 }
 
 model Collection {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
   createdAt DateTime @default(now())
-
   projectId String  @db.Uuid
   project   Project @relation(fields: [projectId], references: [id])
-
+  Model       Model[]
   entries Entry[]
 }
 
 model Model {
-  id        String            @id @default(uuid()) @db.Uuid
-  name      String
-  fields    FieldDefinition[] // <-- linked instead of raw JSON
-  projectId String            @db.Uuid
-  project   Project           @relation(fields: [projectId], references: [id])
-  entries   Entry[]
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id           String            @id @default(uuid()) @db.Uuid
+  name         String
+  fields       FieldDefinition[] // <-- linked instead of raw JSON
+  collectionId String            @db.Uuid @unique
+  collection   Collection        @relation(fields: [collectionId], references: [id])
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 }
 
 model Entry {
@@ -59,8 +56,6 @@ model Entry {
   data         Json
   collectionId String     @db.Uuid
   collection   Collection @relation(fields: [collectionId], references: [id])
-  modelId      String     @db.Uuid
-  model        Model      @relation(fields: [modelId], references: [id])
 }
 
 model FieldDefinition {
@@ -75,11 +70,11 @@ model FieldDefinition {
 }
 
 enum FieldType {
-  string
-  number
-  boolean
-  text
-  date
+  String
+  Number
+  Boolean
+  Text
+  Date
 }
 
 model ApiKey {

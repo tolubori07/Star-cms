@@ -68,7 +68,7 @@ export default function CreateEntryForm({
         <DialogTrigger asChild>
           <div className="w-fit">
             <Button>
-              New Entry
+              new entry
               <LucidePlus className="ml-2 h-4 w-4" />
             </Button>
           </div>
