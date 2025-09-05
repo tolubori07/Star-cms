@@ -1,17 +1,17 @@
 import React from "react";
-import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
+import { Input } from "./ui/input";
 
 type Props = {
   placeholder: string;
   label: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  value?: File | string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: () => void;
   name?: string;
 };
 
-const TextField = ({
+const ImageField = ({
   placeholder,
   label,
   value,
@@ -22,9 +22,10 @@ const TextField = ({
   return (
     <div className="w-full">
       <Label htmlFor={name}>{label}</Label>
-      <Textarea
+      <Input
         id={name}
         placeholder={placeholder}
+        type="file"
         value={value}
         onChange={onChange}
         onBlur={onBlur}
@@ -34,4 +35,4 @@ const TextField = ({
   );
 };
 
-export default TextField;
+export default ImageField;

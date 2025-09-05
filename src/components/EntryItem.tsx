@@ -6,11 +6,15 @@ type Props = {
   name: string;
   id: string;
 };
+
 const EntryItem = ({ name, id }: Props) => {
   return (
-    <Link href={`/entries/${id}`}>
-      <div className="bg-main rounded-base h-[8rem] w-[16rem] p-8 bg-main border-2 border-border shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none transition-all">
-        <h2 className="text-xl font-bold font-heading">{name}</h2>
+    <Link href={`/entries/${id}`} className="block">
+      <div
+        role="link"
+        className="flex items-center justify-start rounded-base border-border border-2 bg-main p-6 h-[8rem] w-[16rem] shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none cursor-pointer"
+      >
+        <h2 className="text-xl font-heading font-bold truncate">{name}</h2>
       </div>
     </Link>
   );

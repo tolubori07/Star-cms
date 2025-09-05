@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -13,27 +13,39 @@ import { useState } from "react";
 
 type Props = {
   placeholder: string;
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  name?: string;
 };
 
-export default function DateField({ placeholder }: Props) {
-  const [date, setDate] = useState<Date>();
+export default function DateField({ placeholder, value, onChange }: Props) {
+  const [internalDate, setInternalDate] = useState<Date | undefined>(value);
+
+  const handleChange = (date: Date | undefined) => {
+    setInternalDate(date);
+    onChange?.(date);
+  };
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="noShadow"
-          className="w-3/5 justify-start text-left font-base"
+          className="w-full justify-start text-left font-base"
         >
-          <CalendarIcon />
-          {date ? format(date, "PPP") : <span>{placeholder}</span>}
+          <CalendarIcon className="mr-2" />
+          {internalDate ? (
+            format(internalDate, "PPP")
+          ) : (
+            <span>{placeholder}</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto border-0! p-0">
         <Calendar
           mode="single"
-          selected={date}
-          onSelect={setDate}
+          selected={internalDate}
+          onSelect={handleChange}
           initialFocus
         />
       </PopoverContent>

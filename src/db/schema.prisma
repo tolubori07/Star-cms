@@ -32,17 +32,17 @@ model Collection {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
   createdAt DateTime @default(now())
-  projectId String  @db.Uuid
-  project   Project @relation(fields: [projectId], references: [id])
-  Model       Model[]
-  entries Entry[]
+  projectId String   @db.Uuid
+  project   Project  @relation(fields: [projectId], references: [id])
+  Model     Model[]
+  entries   Entry[]
 }
 
 model Model {
   id           String            @id @default(uuid()) @db.Uuid
   name         String
   fields       FieldDefinition[] // <-- linked instead of raw JSON
-  collectionId String            @db.Uuid @unique
+  collectionId String            @unique @db.Uuid
   collection   Collection        @relation(fields: [collectionId], references: [id])
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
@@ -75,6 +75,7 @@ enum FieldType {
   Boolean
   Text
   Date
+  Image
 }
 
 model ApiKey {

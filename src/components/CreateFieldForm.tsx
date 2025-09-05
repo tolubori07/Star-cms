@@ -7,6 +7,7 @@ import {
   BoxesIcon,
   Calendar,
   CaseSensitiveIcon,
+  Image,
   LetterText,
   ListOrderedIcon,
   LucidePlus,
@@ -195,6 +196,10 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
                       <SelectItem value="Date">
                         <Calendar />
                         Date
+                      </SelectItem>
+                      <SelectItem value="Image">
+                        <Image />
+                        Image
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>

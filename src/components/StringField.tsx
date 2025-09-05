@@ -5,13 +5,32 @@ import { Label } from "./ui/label";
 type Props = {
   placeholder: string;
   label: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: () => void;
+  name?: string;
 };
 
-const StringField = ({ placeholder, label }: Props) => {
+const StringField = ({
+  placeholder,
+  label,
+  value,
+  onChange,
+  onBlur,
+  name,
+}: Props) => {
   return (
-    <div className="w-3/5">
-      <Label>{label}</Label>
-      <Input type="text" placeholder={placeholder} />
+    <div className="w-full">
+      <Label htmlFor={name}>{label}</Label>
+      <Input
+        id={name}
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        name={name}
+      />
     </div>
   );
 };
