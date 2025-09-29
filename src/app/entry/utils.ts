@@ -36,6 +36,19 @@ export async function createEntry(collectionId: string, data: any) {
       },
     });
   } catch (error) {
-    return { error:error as String };
+    return { error: error as String };
+  }
+}
+
+export async function getEntry(entryId: string) {
+  try {
+    const entry = await prisma.entry.findUnique({
+      where: {
+        id: entryId,
+      },
+    });
+    return entry;
+  } catch (error) {
+    return { error: error };
   }
 }

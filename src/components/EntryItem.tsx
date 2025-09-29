@@ -9,7 +9,7 @@ type Props = {
 
 const EntryItem = ({ name, id }: Props) => {
   return (
-    <Link href={`/entries/${id}`} className="block">
+    <Link href={`/entry/${id}`} className="block">
       <div
         role="link"
         className="flex items-center justify-start rounded-base border-border border-2 bg-main p-6 h-[8rem] w-[16rem] shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none cursor-pointer"

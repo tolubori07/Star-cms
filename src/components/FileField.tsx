@@ -11,7 +11,7 @@ type Props = {
   name?: string;
 };
 
-const ImageField = ({
+const FileField = ({
   placeholder,
   label,
   onChange,
@@ -19,6 +19,7 @@ const ImageField = ({
   name,
 }: Props) => {
   return (
+    <div>
          <Input
         id={name}
         placeholder={placeholder}
@@ -31,4 +32,4 @@ const ImageField = ({
   );
 };
 
-export default ImageField;
+export default FileField;

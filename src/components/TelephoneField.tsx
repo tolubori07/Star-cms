@@ -1,28 +1,32 @@
 import React from "react";
-import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 type Props = {
   placeholder: string;
   label: string;
-  value?: File | string;
+  value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: () => void;
   name?: string;
 };
-
-const ImageField = ({
+// Todo: add dropdown with country codes
+const TelephoneField = ({
   placeholder,
   label,
+  value,
   onChange,
   onBlur,
   name,
 }: Props) => {
   return (
-         <Input
+    <div className="w-full">
+      <Label htmlFor={name}>{label}</Label>
+      <Input
         id={name}
+        type="tel"
         placeholder={placeholder}
-        type="file"
+        value={value}
         onChange={onChange}
         onBlur={onBlur}
         name={name}
@@ -31,4 +35,4 @@ const ImageField = ({
   );
 };
 
-export default ImageField;
+export default TelephoneField;

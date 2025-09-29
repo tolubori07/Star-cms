@@ -7,10 +7,14 @@ import {
   BoxesIcon,
   Calendar,
   CaseSensitiveIcon,
+  Clock,
+  File,
   Image,
   LetterText,
   ListOrderedIcon,
   LucidePlus,
+  PaintBucket,
+  Phone,
   Text,
 } from "lucide-react";
 import {
@@ -200,6 +204,22 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
                       <SelectItem value="Image">
                         <Image />
                         Image
+                      </SelectItem>
+                      <SelectItem value="Colour">
+                        <PaintBucket />
+                        Color
+                      </SelectItem>
+                      <SelectItem value="Telephone">
+                        <Phone />
+                        Phone
+                      </SelectItem>
+                      <SelectItem value="Time">
+                        <Clock />
+                        Time
+                      </SelectItem>
+                      <SelectItem value="File">
+                        <File />
+                        File
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>

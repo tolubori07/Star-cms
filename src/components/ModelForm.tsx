@@ -22,13 +22,19 @@ import { Input } from "./ui/input";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createEntryAction } from "@/app/entry/actions";
-import ImageField from "./ImageField";
+import { Label } from "./ui/label";
+import { createClient } from "@/utils/supabase/client";
+import TelephoneField from "./TelephoneField";
+import TimeField from "./TimeField";
+import ColorField from "./ColorField";
 
 type Props = {
   Fields: FieldDefinition[];
   collectionId: string;
+  defaultValues?: Record<string, any>;
 };
-const MAX_FILE_SIZE = 1024 * 1024 * 5;
+
+const MAX_FILE_SIZE = 1024 * 1024 * 10;
 const ACCEPTED_IMAGE_MIME_TYPES = [
   "image/jpeg",
   "image/jpg",
@@ -37,7 +43,11 @@ const ACCEPTED_IMAGE_MIME_TYPES = [
 ];
 const ACCEPTED_IMAGE_TYPES = ["jpeg", "jpg", "png", "webp"];
 
-export default function ModelForm({ Fields, collectionId }: Props) {
+export default function ModelForm({
+  Fields,
+  collectionId,
+  defaultValues,
+}: Props) {
   const router = useRouter();
   // Build Zod schema dynamically
   const schemaShape: Record<string, any> = {};
@@ -50,7 +60,7 @@ export default function ModelForm({ Fields, collectionId }: Props) {
         validator = z.string();
         break;
       case "Number":
-        validator = z.number({ invalid_type_error: "Must be a number" });
+        validator = z.coerce.number({ invalid_type_error: "Must be a number" });
         break;
       case "Boolean":
         validator = z.boolean();
@@ -60,12 +70,24 @@ export default function ModelForm({ Fields, collectionId }: Props) {
         break;
       case "Image":
         validator = z
-          .any()
-          .refine((files) => {
-            return files?.[0]?.size <= MAX_FILE_SIZE;
-          }, `Max image size is 5MB.`)
+          .custom<FileList>(
+            (val) => {
+              if (typeof window === "undefined") return true; // Skip on server
+              return val instanceof FileList;
+            },
+            { message: "Input must be a File" },
+          )
+          .refine((files) => files && (files as FileList).length > 0, {
+            message: `${field.label} is required`,
+          })
           .refine(
-            (files) => ACCEPTED_IMAGE_MIME_TYPES.includes(files?.[0]?.type),
+            (files) => files && (files as FileList)[0]?.size <= MAX_FILE_SIZE,
+            `Max image size is 10MB`,
+          )
+          .refine(
+            (files) =>
+              files &&
+              ACCEPTED_IMAGE_MIME_TYPES.includes((files as FileList)[0]?.type),
             "Only .jpg, .jpeg, .png and .webp formats are supported.",
           );
         break;
@@ -91,24 +113,60 @@ export default function ModelForm({ Fields, collectionId }: Props) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: Fields.reduce(
-      (acc, field) => {
-        acc[field.name] = field.type === "Boolean" ? false : "";
-        return acc;
-      },
-      { name: "" } as Record<string, any>,
-    ),
+    defaultValues: {
+      ...Fields.reduce(
+        (acc, field) => {
+          acc[field.name] = field.type === "Boolean" ? false : "";
+          return acc;
+        },
+        { name: "" } as Record<string, any>,
+      ),
+      ...defaultValues, // 👈 overwrite with passed-in entry data
+    },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await createEntryAction(collectionId, values);
-    if (res?.error) {
-      toast.error("Failed to create entry", {
-        description: "There was an error while creating your entry",
+    try {
+      let imageUrl = null;
+
+      if (values.image && values.image.length > 0) {
+        const file = values.image[0];
+        const filePath = `${collectionId}/${Date.now()}-${file.name}`;
+        const supabase = createClient();
+
+        const { error: uploadError } = await supabase.storage
+          .from("media")
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from("media").getPublicUrl(filePath);
+
+        imageUrl = data.publicUrl;
+      }
+
+      const res = await createEntryAction(
+        collectionId,
+        imageUrl == null
+          ? {
+            ...values,
+          }
+          : { ...values, image: imageUrl },
+      );
+
+      if (res?.error) {
+        toast.error("Failed to create entry", {
+          description: "There was an error while creating your entry",
+        });
+        console.error(res.error);
+      } else {
+        router.push(`/collections/${collectionId}`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong", {
+        description: "Image upload or entry creation failed",
       });
-      console.log(res.error);
-    } else {
-      router.push(`/collections/${collectionId}`);
     }
   };
 
@@ -166,11 +224,20 @@ export default function ModelForm({ Fields, collectionId }: Props) {
                         {...rhfField}
                       />
                     ) : field.type === "Image" ? (
-                      <ImageField
-                        placeholder={field.placeholder || ""}
-                        label={field.label}
-                        {...rhfField}
-                      />
+                      <div className="w-full">
+                        <Label htmlFor={field.name}>{field.label}</Label>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            accept={ACCEPTED_IMAGE_TYPES.map(
+                              (ext) => `.${ext}`,
+                            ).join(", ")}
+                            onChange={(e) => {
+                              rhfField.onChange(e.target.files);
+                            }}
+                          />
+                        </FormControl>
+                      </div>
                     ) : field.type === "Boolean" ? (
                       <BooleanField label={field.label} {...rhfField} />
                     ) : field.type === "Date" ? (
@@ -184,6 +251,24 @@ export default function ModelForm({ Fields, collectionId }: Props) {
                             onChange={ctrl.onChange}
                           />
                         )}
+                      />
+                    ) : field.type === "Telephone" ? (
+                      <TelephoneField
+                        placeholder={field.placeholder || ""}
+                        label={field.label}
+                        {...rhfField}
+                      />
+                    ) : field.type === "Time" ? (
+                      <TimeField
+                        placeholder={field.placeholder || ""}
+                        label={field.label}
+                        {...rhfField}
+                      />
+                    ) : field.type === "Colour" ? (
+                      <ColorField
+                        placeholder={field.placeholder || ""}
+                        label={field.label}
+                        {...rhfField}
                       />
                     ) : null}
                   </FormControl>

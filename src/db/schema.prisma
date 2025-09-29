@@ -70,12 +70,19 @@ model FieldDefinition {
 }
 
 enum FieldType {
-  String
-  Number
-  Boolean
-  Text
-  Date
-  Image
+  String //done
+  Number //done
+  Boolean //done
+  Text //done
+  Date //done
+  Image //done
+  Colour //done
+  File //later
+  Radio //later 
+  Select
+  Range
+  Telephone //done
+  Time //done
 }
 
 model ApiKey {
