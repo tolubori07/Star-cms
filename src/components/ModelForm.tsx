@@ -121,7 +121,7 @@ export default function ModelForm({
         },
         { name: "" } as Record<string, any>,
       ),
-      ...defaultValues, // 👈 overwrite with passed-in entry data
+      ...defaultValues, 
     },
   });
 

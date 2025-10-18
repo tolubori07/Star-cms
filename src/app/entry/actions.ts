@@ -18,3 +18,18 @@ export async function createEntryAction(collectionId: string, data: any) {
   }
 }
 
+
+
+export async function deleteEntryAction(id: string) {
+  try {
+    await prisma.entry.delete({
+      where: { id },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+

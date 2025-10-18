@@ -3,11 +3,7 @@
 import { Entry } from "@prisma/client";
 import EntryItem from "./EntryItem";
 
-export default function EntryList({
-  entries,
-}: {
-  entries: Entry[];
-}) {
+export default function EntryList({ entries }: { entries: Entry[] }) {
   if (entries.length === 0) {
     return (
       <h2 className="text-xl font-main font-bold text-center">
@@ -17,7 +13,7 @@ export default function EntryList({
   }
 
   return (
-    <div className="mt-8 grid grid-cols-6 gap-4">
+    <div className="mt-8 grid grid-cols-3 gap-4">
       {entries.map((e) => (
         <EntryItem
           key={e.id}

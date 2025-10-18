@@ -89,14 +89,14 @@ export async function createModel(collectionId: string, formData: FormData) {
   }
 }
 
-export async function getModel(collectionId: string):Promise<Model> {
+export async function getModel(collectionId: string): Promise<Model> {
   try {
     const model = await prisma.model.findUnique({
       where: { collectionId: collectionId },
     });
-    return model
+    return model;
   } catch (error) {
-    return { error: error };
+    return { error };
   }
 }
 

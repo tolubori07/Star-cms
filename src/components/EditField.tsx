@@ -17,8 +17,13 @@ import {
   BoxesIcon,
   Calendar,
   CaseSensitiveIcon,
+  Clock,
   EllipsisVertical,
+  File,
+  Image,
   ListOrderedIcon,
+  PaintBucket,
+  Phone,
   Text,
 } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
@@ -99,6 +104,26 @@ function EditField({ Field, children }: Props) {
                 <SelectItem value="Date">
                   <Calendar />
                   Date
+                </SelectItem>
+                <SelectItem value="Image">
+                  <Image />
+                  Image
+                </SelectItem>
+                <SelectItem value="Colour">
+                  <PaintBucket />
+                  Color
+                </SelectItem>
+                <SelectItem value="Telephone">
+                  <Phone />
+                  Phone
+                </SelectItem>
+                <SelectItem value="Time">
+                  <Clock />
+                  Time
+                </SelectItem>
+                <SelectItem value="File">
+                  <File />
+                  File
                 </SelectItem>
               </SelectGroup>
             </SelectContent>

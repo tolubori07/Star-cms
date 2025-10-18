@@ -1,4 +1,10 @@
-import { getCollection, getEntries, createEntry, getFields, getModel } from "../utils";
+import {
+  getCollection,
+  getEntries,
+  createEntry,
+  getFields,
+  getModel,
+} from "../utils";
 import EntryList from "@/components/EntryList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateModelForm from "@/components/CreateModelForm";
@@ -12,12 +18,12 @@ import { getUserOrCreate } from "@/utils/supabase/server";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-  console.log(id)
+  console.log(id);
   const collection = await getCollection(id);
   const entries = await getEntries(id);
   const model: Model = await getModel(id);
   const fields = model ? await getFields(model.id) : [];
-  const user = await getUserOrCreate()
+  const user = await getUserOrCreate();
 
   return (
     <Tabs defaultValue="entries">
@@ -60,26 +66,26 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 You have no model yet
               </h2>
               <CreateModelForm collectionId={id} userId={user?.id} />
-              </>
-                ) : (
-                <div className="p-4">
-                  <h1 className="text-center font-bold font-heading text-3xl">
-                    {model.name}
-                  </h1>
-                  <CreateFieldForm initialFields={fields} modelId={model.id} />
-                  {fields.length > 0 ? (
-                    <FieldList fields={fields} />
-                  ) : (
-                    <h2>
-                      Your model is yet to take form, there are infinite
-                      possibilities.
-                    </h2>
-                  )}
-                </div>
+            </>
+          ) : (
+            <div className="p-4">
+              <h1 className="text-center font-bold font-heading text-3xl">
+                {model.name}
+              </h1>
+              <CreateFieldForm initialFields={fields} modelId={model.id} />
+              {fields.length > 0 ? (
+                <FieldList fields={fields} />
+              ) : (
+                <h2>
+                  Your model is yet to take form, there are infinite
+                  possibilities.
+                </h2>
+              )}
+            </div>
           )}
-              </div>
-            </TabsContent>
-        </Tabs>
-        );
+        </div>
+      </TabsContent>
+    </Tabs>
+  );
 };
-        export default Page
+export default Page;

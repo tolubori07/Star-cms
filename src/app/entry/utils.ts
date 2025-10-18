@@ -40,15 +40,31 @@ export async function createEntry(collectionId: string, data: any) {
   }
 }
 
-export async function getEntry(entryId: string) {
+export async function getEntry(id: string) {
+  return await prisma.entry.findUnique({
+    where: { id },
+    include: {
+      collection: {
+        include: {
+          Model: {
+            include: {
+              fields: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export const deleteEntry = async (entryId: string) => {
   try {
-    const entry = await prisma.entry.findUnique({
+    await prisma.entry.delete({
       where: {
         id: entryId,
       },
     });
-    return entry;
   } catch (error) {
     return { error: error };
   }
-}
+};
