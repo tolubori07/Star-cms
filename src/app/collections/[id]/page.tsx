@@ -15,15 +15,17 @@ import CreateFieldForm from "@/components/CreateFieldForm";
 import FieldList from "@/components/FieldList";
 import { Model } from "@prisma/client";
 import { getUserOrCreate } from "@/utils/supabase/server";
+import { toast } from "sonner";
+import NewEntryButton from "@/components/NewEntryButton";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
-  console.log(id);
   const collection = await getCollection(id);
   const entries = await getEntries(id);
   const model: Model = await getModel(id);
   const fields = model ? await getFields(model.id) : [];
   const user = await getUserOrCreate();
+  const hasFields = fields.length == 0 ? false : true;
 
   return (
     <Tabs defaultValue="entries">
@@ -38,11 +40,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
           <h1 className="text-center font-bold font-heading text-3xl">
             {collection?.name}
           </h1>
-          <Link href={`/entry/new?modelId=${model?.id}&collectionId=${id}`}>
-            <Button>
-              New Entry <LucidePlus className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <NewEntryButton modelId={model ? model.id : ""} collectionId={id} />
           {entries.length === 0 ? (
             <h2 className="text-xl font-main font-bold text-center mt-4">
               We await the new entry
@@ -65,6 +63,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
               <h2 className="text-xl font-main font-bold text-center mt-4">
                 You have no model yet
               </h2>
+              {/*@ts-ignore*/}
               <CreateModelForm collectionId={id} userId={user?.id} />
             </>
           ) : (

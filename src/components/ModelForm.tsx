@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import { FieldDefinition } from "@prisma/client";
+import { Entry, FieldDefinition } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,17 +21,19 @@ import DateField from "./DateField";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { createEntryAction } from "@/app/entry/actions";
 import { Label } from "./ui/label";
 import { createClient } from "@/utils/supabase/client";
 import TelephoneField from "./TelephoneField";
 import TimeField from "./TimeField";
 import ColorField from "./ColorField";
+import { createEntryProxy, editEntryProxy } from "../lib/entryActionProxy";
 
 type Props = {
   Fields: FieldDefinition[];
   collectionId: string;
   defaultValues?: Record<string, any>;
+  id: string;
+  entry: Entry;
 };
 
 const MAX_FILE_SIZE = 1024 * 1024 * 10;
@@ -47,6 +49,8 @@ export default function ModelForm({
   Fields,
   collectionId,
   defaultValues,
+  id,
+  entry,
 }: Props) {
   const router = useRouter();
   // Build Zod schema dynamically
@@ -66,7 +70,7 @@ export default function ModelForm({
         validator = z.boolean();
         break;
       case "Date":
-        validator = z.date({ required_error: "Date is required" });
+        validator = z.coerce.date({ required_error: "Date is required" });
         break;
       case "Image":
         validator = z
@@ -121,7 +125,7 @@ export default function ModelForm({
         },
         { name: "" } as Record<string, any>,
       ),
-      ...defaultValues, 
+      ...defaultValues,
     },
   });
 
@@ -144,15 +148,13 @@ export default function ModelForm({
 
         imageUrl = data.publicUrl;
       }
+      if (defaultValues) {
+        entry.data = values;
+      }
 
-      const res = await createEntryAction(
-        collectionId,
-        imageUrl == null
-          ? {
-            ...values,
-          }
-          : { ...values, image: imageUrl },
-      );
+      const res = defaultValues
+        ? await editEntryProxy(id, entry)
+        : await createEntryProxy(collectionId, values);
 
       if (res?.error) {
         toast.error("Failed to create entry", {

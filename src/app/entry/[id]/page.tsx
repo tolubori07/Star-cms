@@ -15,7 +15,9 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
       <ModelForm
         Fields={fields}
         collectionId={entry.collectionId}
-        defaultValues={data} 
+        defaultValues={data}
+        entry={entry}
+        id={entry.id}
       />
     </div>
   );

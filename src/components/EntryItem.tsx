@@ -41,7 +41,7 @@ const EntryItem = ({ name, id }: Props) => {
         className="absolute top-3 right-3 w-5 h-5 text-muted-foreground hover:text-destructive transition-colors z-10"
         onClick={entryDelete}
       />
-      <h2 className="text-xl font-heading font-bold truncate mt-6">{name}</h2>
+      <h2 className="text-xl font-heading font-bold mt-6">{name}</h2>
     </div>
   );
 };
