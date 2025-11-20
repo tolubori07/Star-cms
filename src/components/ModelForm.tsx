@@ -137,7 +137,7 @@ export default function ModelForm({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values)
+    console.log(values);
     try {
       const supabase = createClient();
 
@@ -147,7 +147,7 @@ export default function ModelForm({
 
         const filePath = `${collectionId}/${Date.now()}-${file.name}`;
 
-        const { data,error } = await supabase.storage
+        const { data, error } = await supabase.storage
           .from("media")
           .upload(filePath, file, {
             cacheControl: "3600",
@@ -156,13 +156,9 @@ export default function ModelForm({
 
         if (error) throw error;
 
-        //const { data } = supabase.storage.from("media").getPublicUrl(filePath);
-
-        // REPLACE the FileList with the URL
         values.img = data.fullPath;
-        console.log(values)
+        console.log(values);
       }
-      // 2. Save
       const res = defaultValues
         ? await editEntryProxy(id, { ...entry, data: values })
         : await createEntryProxy(collectionId, values);
