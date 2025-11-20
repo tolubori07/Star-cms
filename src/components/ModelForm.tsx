@@ -72,6 +72,13 @@ export default function ModelForm({
       case "Date":
         validator = z.coerce.date({ required_error: "Date is required" });
         break;
+      case "Telephone":
+        validator = z
+          .string()
+          .min(10, "Phone number is too short")
+          .max(15, "Phone number is too long")
+          .regex(/^(?:\+?\d[\d\s()-]*)$/, "Invalid phone number format");
+        break;
       case "Image":
         validator = z
           .custom<FileList>(
@@ -130,45 +137,45 @@ export default function ModelForm({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log(values)
     try {
-      let imageUrl = null;
+      const supabase = createClient();
 
-      if (values.image && values.image.length > 0) {
-        const file = values.image[0];
+      // 1. Upload image if present
+      if (values.img instanceof FileList && values.img.length > 0) {
+        const file = values.img[0];
+
         const filePath = `${collectionId}/${Date.now()}-${file.name}`;
-        const supabase = createClient();
 
-        const { error: uploadError } = await supabase.storage
+        const { data,error } = await supabase.storage
           .from("media")
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            contentType: file.type,
+          });
 
-        if (uploadError) throw uploadError;
+        if (error) throw error;
 
-        const { data } = supabase.storage.from("media").getPublicUrl(filePath);
+        //const { data } = supabase.storage.from("media").getPublicUrl(filePath);
 
-        imageUrl = data.publicUrl;
+        // REPLACE the FileList with the URL
+        values.img = data.fullPath;
+        console.log(values)
       }
-      if (defaultValues) {
-        entry.data = values;
-      }
-
+      // 2. Save
       const res = defaultValues
-        ? await editEntryProxy(id, entry)
+        ? await editEntryProxy(id, { ...entry, data: values })
         : await createEntryProxy(collectionId, values);
 
       if (res?.error) {
-        toast.error("Failed to create entry", {
-          description: "There was an error while creating your entry",
-        });
-        console.error(res.error);
+        toast.error("Failed to create entry");
+        console.log(res?.error);
       } else {
         router.push(`/collections/${collectionId}`);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong", {
-        description: "Image upload or entry creation failed",
-      });
+      toast.error("Something went wrong");
     }
   };
 
@@ -258,7 +265,10 @@ export default function ModelForm({
                       <TelephoneField
                         placeholder={field.placeholder || ""}
                         label={field.label}
-                        {...rhfField}
+                        name={field.name}
+                        value={rhfField.value}
+                        onChange={rhfField.onChange}
+                        onBlur={rhfField.onBlur}
                       />
                     ) : field.type === "Time" ? (
                       <TimeField

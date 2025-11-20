@@ -10,7 +10,6 @@ type Props = {
   onBlur?: () => void;
   name?: string;
 };
-// Todo: add dropdown with country codes
 const TimeField = ({
   placeholder,
   label,

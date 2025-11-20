@@ -11,15 +11,10 @@ type Props = {
   name?: string;
 };
 
-const ImageField = ({
-  placeholder,
-  label,
-  onChange,
-  onBlur,
-  name,
-}: Props) => {
+const ImageField = ({ placeholder, label, onChange, onBlur, name }: Props) => {
   return (
-         <Input
+    <div>
+      <Input
         id={name}
         placeholder={placeholder}
         type="file"

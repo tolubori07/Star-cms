@@ -5,7 +5,6 @@ import { prisma } from "@/db/prisma";
 import { Entry } from "@prisma/client";
 
 export async function createEntryAction(collectionId: string, data: any) {
-  console.log(data)
   try {
     await prisma.entry.create({
       data: {
