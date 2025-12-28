@@ -2,6 +2,7 @@
 "use server";
 
 import { prisma } from "@/db/prisma";
+import { createClient } from "@/utils/supabase/client";
 import { Entry } from "@prisma/client";
 
 export async function createEntryAction(collectionId: string, data: any) {
@@ -49,3 +50,13 @@ export async function editEntryAction(id: string, entry: Entry) {
     return { error: error instanceof Error ? error.message : String(error) };
   }
 }
+
+export const fetchSignedMediaUrl = async (filepath: string) => {
+  const supabase = createClient();
+  try {
+    const { data } = await supabase.storage.from("media").createSignedUrl(filepath, 60)
+    return data?.signedUrl;
+  } catch (error) {
+    console.log(error)
+  }
+};

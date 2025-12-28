@@ -8,14 +8,10 @@ import {
 import EntryList from "@/components/EntryList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateModelForm from "@/components/CreateModelForm";
-import { Button } from "@/components/ui/button";
-import { LucidePlus } from "lucide-react";
-import Link from "next/link";
 import CreateFieldForm from "@/components/CreateFieldForm";
 import FieldList from "@/components/FieldList";
 import { Model } from "@prisma/client";
 import { getUserOrCreate } from "@/utils/supabase/server";
-import { toast } from "sonner";
 import NewEntryButton from "@/components/NewEntryButton";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -25,7 +21,6 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const model: Model = await getModel(id);
   const fields = model ? await getFields(model.id) : [];
   const user = await getUserOrCreate();
-  const hasFields = fields.length == 0 ? false : true;
 
   return (
     <Tabs defaultValue="entries">

@@ -1,4 +1,5 @@
 import { prisma } from "@/db/prisma";
+import { createClient } from "@/utils/supabase/client";
 import { JsonObject } from "@prisma/client/runtime/library";
 
 export async function getModelsWithFields(collectionId: string) {
@@ -26,13 +27,13 @@ export async function getCollection(id: string) {
   }
 }
 
-export async function createEntry(collectionId: string, data: any) {
+export async function createEntry(collectionId: string, entrydata: any) {
   try {
     await prisma.entry.create({
       data: {
-        data: data,
+        data: entrydata,
         collectionId: collectionId,
-        name: data.name,
+        name: entrydata.name,
       },
     });
   } catch (error) {
@@ -66,5 +67,15 @@ export const deleteEntry = async (entryId: string) => {
     });
   } catch (error) {
     return { error: error };
+  }
+};
+
+export const fetchSignedMediaUrl = (filepath: string) => {
+  const supabase = createClient();
+  try {
+    const { data } = supabase.storage.from("media").getPublicUrl(filepath)
+    return data?.publicUrl;
+  } catch (error) {
+    console.log(error)
   }
 };

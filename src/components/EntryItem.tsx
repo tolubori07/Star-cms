@@ -34,11 +34,11 @@ const EntryItem = ({ name, id }: Props) => {
     <div
       role="button"
       tabIndex={0}
-      className="relative rounded-base border-2 border-border bg-main p-6 h-[8rem] w-[16rem] shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none cursor-pointer"
+      className="relative rounded-[1.8rem] bg-primary p-6 h-[8rem] w-[16rem] shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none cursor-pointer"
       onClick={() => router.push(`/entry/${id}`)}
     >
       <Trash2
-        className="absolute top-3 right-3 w-5 h-5 text-muted-foreground hover:text-destructive transition-colors z-10"
+        className="absolute top-3 right-3 w-5 h-5 text-muted-black hover:text-destructive transition-colors z-10"
         onClick={entryDelete}
       />
       <h2 className="text-xl font-heading font-bold mt-6">{name}</h2>

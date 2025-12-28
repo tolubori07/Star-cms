@@ -30,7 +30,7 @@ const FieldDropDown = ({ field }: Props) => {
     router.refresh();
     toast.success("Field deleted", {
       description: "Field has been deleted successfully",
-      classNames: { description: "!text-black" },
+      classNames: { description: "!text-black !dark:text-white" },
     });
   };
   return (
@@ -43,10 +43,10 @@ const FieldDropDown = ({ field }: Props) => {
           <EditField Field={field}>
             <DropdownMenuItem
               onSelect={(e) => e.preventDefault()}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-2 cursor-pointer w-full"
             >
-              <Edit className="h-4 w-4" />
-              <span>Edit field definition</span>
+              <Edit/>
+              <span className="">Edit field definition</span>
             </DropdownMenuItem>
           </EditField>
           <DropdownMenuItem onClick={fieldDelete}>

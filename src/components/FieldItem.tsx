@@ -9,7 +9,7 @@ type Props = {
 
 const FieldItem = ({ Field }: Props) => {
   return (
-    <div className="rounded-lg border border-border bg-white shadow-shadow mt-5 p-4 w-[80%]">
+    <div className="rounded-lg border border-border bg-bg shadow-shadow mt-5 p-4 w-[80%]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -27,6 +27,8 @@ import TelephoneField from "./TelephoneField";
 import TimeField from "./TimeField";
 import ColorField from "./ColorField";
 import { createEntryProxy, editEntryProxy } from "../lib/entryActionProxy";
+import { fetchSignedMediaUrl } from "@/app/entry/utils";
+import ImageCard from "./ui/image-card";
 
 type Props = {
   Fields: FieldDefinition[];
@@ -137,11 +139,9 @@ export default function ModelForm({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
     try {
       const supabase = createClient();
 
-      // 1. Upload image if present
       if (values.img instanceof FileList && values.img.length > 0) {
         const file = values.img[0];
 
@@ -156,7 +156,7 @@ export default function ModelForm({
 
         if (error) throw error;
 
-        values.img = data.fullPath;
+        values.img = data.path;
         console.log(values);
       }
       const res = defaultValues
@@ -242,9 +242,21 @@ export default function ModelForm({
                             }}
                           />
                         </FormControl>
+                        {defaultValues != null &&
+                          defaultValues[field.name] != null ? (
+                          <ImageCard
+                            caption="current image"
+                            className="mt-12 w-full"
+                            imageUrl={fetchSignedMediaUrl(
+                              defaultValues[field.name],
+                            )}
+                          ></ImageCard>
+                        ) : (
+                          ""
+                        )}
                       </div>
                     ) : field.type === "Boolean" ? (
-                      <BooleanField label={field.label} {...rhfField} />
+                      <BooleanField label={field.label} {...rhfField} checked={rhfField.value}/>
                     ) : field.type === "Date" ? (
                       <Controller
                         control={form.control}

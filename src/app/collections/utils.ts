@@ -1,7 +1,6 @@
 "use server";
 import { prisma } from "@/db/prisma";
 import { JsonValue } from "@/generated/prisma/runtime/library";
-import { getUserOrCreate } from "@/utils/supabase/server";
 import { FieldType, Model } from "@prisma/client";
 
 export const getCollection = async (
@@ -145,5 +144,42 @@ export const deleteField = async (fieldId: string) => {
     });
   } catch (error) {
     return { error: error };
+  }
+};
+
+type field = {
+  name: string;
+  label: string;
+  type:
+    | "Text"
+    | "String"
+    | "Date"
+    | "Boolean"
+    | "Number"
+    | "Image"
+    | "Color"
+    | "Phone"
+    | "Time"
+    | "File";
+  placeholder: string;
+  required: boolean;
+};
+
+export const updateField = async (id: string, field: field) => {
+  try {
+    await prisma.fieldDefinition.update({
+      where: { id },
+      data: {
+        name: field.name,
+        type: field.type,
+        placeholder: field.placeholder,
+        label: field.label,
+        required: field.required,
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating entry:", error);
+    return { error: error instanceof Error ? error.message : String(error) };
   }
 };
