@@ -27,8 +27,11 @@ import TelephoneField from "./TelephoneField";
 import TimeField from "./TimeField";
 import ColorField from "./ColorField";
 import { createEntryProxy, editEntryProxy } from "../lib/entryActionProxy";
-import { fetchSignedMediaUrl } from "@/app/entry/utils";
+import { getPublicMediaUrl } from "@/app/entry/utils";
 import ImageCard from "./ui/image-card";
+import ReferenceField from "./ReferenceField";
+import { getAllEntries } from "@/app/collections/utils";
+
 
 type Props = {
   Fields: FieldDefinition[];
@@ -36,6 +39,7 @@ type Props = {
   defaultValues?: Record<string, any>;
   id: string;
   entry: Entry;
+  entries: Entry[];
 };
 
 const MAX_FILE_SIZE = 1024 * 1024 * 10;
@@ -53,8 +57,10 @@ export default function ModelForm({
   defaultValues,
   id,
   entry,
+  entries,
 }: Props) {
   const router = useRouter();
+
   // Build Zod schema dynamically
   const schemaShape: Record<string, any> = {};
   Fields.forEach((field) => {
@@ -66,13 +72,13 @@ export default function ModelForm({
         validator = z.string();
         break;
       case "Number":
-        validator = z.coerce.number({ invalid_type_error: "Must be a number" });
+        validator = z.coerce.number({ error: "Must be a number" });
         break;
       case "Boolean":
         validator = z.boolean();
         break;
       case "Date":
-        validator = z.coerce.date({ required_error: "Date is required" });
+        validator = z.coerce.date({ error: "Date is required" });
         break;
       case "Telephone":
         validator = z
@@ -243,11 +249,11 @@ export default function ModelForm({
                           />
                         </FormControl>
                         {defaultValues != null &&
-                          defaultValues[field.name] != null ? (
+                        defaultValues[field.name] != null ? (
                           <ImageCard
                             caption="current image"
                             className="mt-12 w-full"
-                            imageUrl={fetchSignedMediaUrl(
+                            imageUrl={getPublicMediaUrl(
                               defaultValues[field.name],
                             )}
                           ></ImageCard>
@@ -256,7 +262,11 @@ export default function ModelForm({
                         )}
                       </div>
                     ) : field.type === "Boolean" ? (
-                      <BooleanField label={field.label} {...rhfField} checked={rhfField.value}/>
+                      <BooleanField
+                        label={field.label}
+                        {...rhfField}
+                        checked={rhfField.value}
+                      />
                     ) : field.type === "Date" ? (
                       <Controller
                         control={form.control}
@@ -289,6 +299,13 @@ export default function ModelForm({
                         placeholder={field.placeholder || ""}
                         label={field.label}
                         {...rhfField}
+                        value={typeof rhfField.value === "string" ? rhfField.value : ""}
+                      />
+                    ) : field.type === "Reference" ? (
+                      <ReferenceField
+                        placeholder={field.placeholder || ""}
+                        label={field.label || ""}
+                        entries={entries}
                       />
                     ) : null}
                   </FormControl>

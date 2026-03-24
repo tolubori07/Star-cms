@@ -4,6 +4,7 @@ import {
   createEntry,
   getFields,
   getModel,
+  getAllCollections,
 } from "../utils";
 import EntryList from "@/components/EntryList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,7 +22,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const model: Model = await getModel(id);
   const fields = model ? await getFields(model.id) : [];
   const user = await getUserOrCreate();
-
+  const collections = await getAllCollections(collection?.projectId,collection?.id);
   return (
     <Tabs defaultValue="entries">
       <TabsList>
@@ -66,7 +67,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
               <h1 className="text-center font-bold font-heading text-3xl">
                 {model.name}
               </h1>
-              <CreateFieldForm initialFields={fields} modelId={model.id} />
+              <CreateFieldForm initialFields={fields} modelId={model.id} collections={collections}/>
               {fields.length > 0 ? (
                 <FieldList fields={fields} />
               ) : (

@@ -29,19 +29,20 @@ model Project {
 }
 
 model Collection {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  createdAt DateTime @default(now())
-  projectId String   @db.Uuid
-  project   Project  @relation(fields: [projectId], references: [id])
-  Model     Model[]
-  entries   Entry[]
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String
+  createdAt        DateTime          @default(now())
+  projectId        String            @db.Uuid
+  project          Project           @relation(fields: [projectId], references: [id])
+  Model            Model[]
+  entries          Entry[]
+  fieldDefinitions FieldDefinition[]
 }
 
 model Model {
   id           String            @id @default(uuid()) @db.Uuid
   name         String
-  fields       FieldDefinition[] // <-- linked instead of raw JSON
+  fields       FieldDefinition[]
   collectionId String            @unique @db.Uuid
   collection   Collection        @relation(fields: [collectionId], references: [id])
   createdAt    DateTime          @default(now())
@@ -59,14 +60,17 @@ model Entry {
 }
 
 model FieldDefinition {
-  id          String    @id @default(uuid()) @db.Uuid
-  model       Model     @relation(fields: [modelId], references: [id])
-  modelId     String    @db.Uuid
-  name        String
-  label       String
-  type        FieldType
-  required    Boolean   @default(false)
-  placeholder String?
+  id                    String      @id @default(uuid()) @db.Uuid
+  model                 Model       @relation(fields: [modelId], references: [id])
+  modelId               String      @db.Uuid
+  name                  String
+  label                 String
+  type                  FieldType
+  required              Boolean     @default(false)
+  placeholder           String?
+  referenceCollectionId String?     @db.Uuid
+  referenceCollection   Collection? @relation(fields: [referenceCollectionId], references: [id])
+  multiple              Boolean     @default(false)
 }
 
 enum FieldType {
@@ -83,6 +87,7 @@ enum FieldType {
   Range
   Telephone //done
   Time //done
+  Reference
 }
 
 model ApiKey {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 "use client";
 
 import { useOptimistic, useState, useTransition } from "react";
@@ -10,7 +11,7 @@ import {
   Clock,
   File,
   Image,
-  LetterText,
+  Link,
   ListOrderedIcon,
   LucidePlus,
   PaintBucket,
@@ -45,8 +46,16 @@ import { createField } from "@/app/collections/utils";
 type Props = {
   initialFields: any[];
   modelId: string;
+  collections: {
+    id: string;
+    name: string;
+  }[];
 };
-export default function CreateFieldForm({ initialFields, modelId }: Props) {
+export default function CreateFieldForm({
+  initialFields,
+  modelId,
+  collections,
+}: Props) {
   const [pending, startTransition] = useTransition();
   const [fields, setFields] = useOptimistic(initialFields);
   const [formState, setFormState] = useState({
@@ -55,11 +64,17 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
     placeholder: "",
     type: "",
     required: false,
+    referenceCollectionId: "",
+    multiple: false,
   });
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formState.type === "Reference" && !formState.referenceCollectionId) {
+      toast.error("Please select a collection to reference");
+      return;
+    }
 
     const tempField = {
       id: crypto.randomUUID(), // temporary
@@ -68,22 +83,31 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
       placeholder: formState.placeholder,
       type: formState.type,
       required: formState.required,
+      referenceCollectionId: formState.referenceCollectionId,
+      multiple: formState.multiple,
     };
 
     startTransition(async () => {
       setFields((prev) => [...prev, tempField]);
       const formData = new FormData();
+      if (formState.type === "Reference") {
+        formData.append(
+          "referenceCollectionId",
+          formState.referenceCollectionId
+        );
+        formData.append("multiple", String(formState.multiple));
+      }
       formData.append("name", formState.name);
       formData.append("label", formState.label);
       formData.append("placeholder", formState.placeholder);
       formData.append("type", formState.type);
       formData.append("required", String(formState.required));
       const res = await createField(formData, modelId).then(() =>
-        setOpen(false),
+        setOpen(false)
       );
       //@ts-ignore
       if (res?.error) {
-        //@ts-ignore
+        //@ts-expect-error
         toast.error("Error creating field", { description: res?.error });
       }
       router.refresh();
@@ -98,6 +122,8 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
       placeholder: "",
       type: "",
       required: false,
+      referenceCollectionId: "",
+      multiple: false,
     });
   };
 
@@ -117,7 +143,7 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
             <DialogHeader>
               <DialogTitle>Create A new field</DialogTitle>
               <DialogDescription>
-                Fill out the form's details to create a new field{" "}
+                Fill out the form&apos;s details to create a new field{" "}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -221,9 +247,59 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
                         <File />
                         File
                       </SelectItem>
+                      <SelectItem value="Reference">
+                        <Link />
+                        Reference
+                      </SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
+                {formState.type === "Reference" && (
+                  <div className="space-y-4 rounded-md border p-4">
+                    <div className="grid gap-3">
+                      <Label>Reference collection</Label>
+                      <Select
+                        value={formState.referenceCollectionId}
+                        onValueChange={(value) =>
+                          setFormState({
+                            ...formState,
+                            referenceCollectionId: value,
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a collection" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Collections</SelectLabel>
+                            {collections.map((collection) => (
+                              <SelectItem
+                                key={collection.id}
+                                value={collection.id}
+                              >
+                                {collection.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={formState.multiple}
+                        onCheckedChange={(checked) =>
+                          setFormState({
+                            ...formState,
+                            multiple: Boolean(checked),
+                          })
+                        }
+                      />
+                      <Label>Allow multiple references</Label>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3">
@@ -239,7 +315,7 @@ export default function CreateFieldForm({ initialFields, modelId }: Props) {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="neutral">Cancel</Button>
+                <Button variant="destructive">Cancel</Button>
               </DialogClose>
               <Button type="submit" disabled={pending}>
                 {pending ? "Creating..." : "Create field"}

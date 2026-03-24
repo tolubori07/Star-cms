@@ -70,12 +70,15 @@ export const deleteEntry = async (entryId: string) => {
   }
 };
 
-export const fetchSignedMediaUrl = (filepath: string) => {
-  const supabase = createClient();
-  try {
-    const { data } = supabase.storage.from("media").getPublicUrl(filepath)
-    return data?.publicUrl;
-  } catch (error) {
-    console.log(error)
+export const getPublicMediaUrl = (input: string) => {
+  if (!input) return "";
+
+  if (input.startsWith("http")) {
+    return input;
   }
+
+  const supabase = createClient();
+  const { data } = supabase.storage.from("media").getPublicUrl(input);
+  return data.publicUrl;
 };
+

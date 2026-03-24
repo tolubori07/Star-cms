@@ -9,6 +9,7 @@ export const getCollection = async (
   id: string;
   name: string;
   createdAt: Date;
+  projectId: string;
 } | null> => {
   const collection = await prisma.collection.findUnique({
     where: {
@@ -105,6 +106,8 @@ export const createField = async (formData: FormData, modelId: string) => {
   const type = formData.get("type") as FieldType;
   const required = formData.get("required") === "true"; // convert to boolean
   const placeholder = formData.get("placeholder") as string;
+  const referenceCollectionId = formData.get("referenceCollectionId");
+  const multiple = formData.get("multiple") === "true"; // convert to boolean
 
   if (!name || !label || !type) {
     return { error: "Missing required field data" };
@@ -119,6 +122,8 @@ export const createField = async (formData: FormData, modelId: string) => {
         placeholder,
         required,
         modelId,
+        referenceCollectionId,
+        multiple,
       },
     });
     return field;
@@ -157,8 +162,8 @@ type field = {
     | "Boolean"
     | "Number"
     | "Image"
-    | "Color"
-    | "Phone"
+    | "Colour"
+    | "Telephone"
     | "Time"
     | "File";
   placeholder: string;
@@ -181,5 +186,39 @@ export const updateField = async (id: string, field: field) => {
   } catch (error) {
     console.error("Error updating entry:", error);
     return { error: error instanceof Error ? error.message : String(error) };
+  }
+};
+
+export const getAllCollections = async (
+  projectId: string,
+  collectionId: string,
+) => {
+  try {
+    const collections = await prisma.collection.findMany({
+      where: {
+        projectId: projectId,
+        NOT: { id: collectionId },
+      },
+    });
+    console.log(collections);
+    return collections;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const getAllEntries = async (
+  collectionId: string,
+) => {
+  try {
+    const entries = await prisma.entry.findMany({
+      where: {
+        collectionId: collectionId,
+      }
+    });
+    console.log(entries);
+    return entries;
+  } catch (err) {
+    console.error(err);
   }
 };
