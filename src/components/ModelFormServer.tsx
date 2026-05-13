@@ -1,16 +1,23 @@
 import React from "react";
 import ModelForm from "./ModelForm";
-import { Collection, Entry, FieldDefinition } from "@prisma/client";
+import { Entry, FieldDefinition } from "@prisma/client";
+
 type Props = {
   collectionId: string;
   Fields: FieldDefinition[];
-  collections: Collection[];
-  id:string;
-  entries: Entry[];
-  collections: Collection[];
+  referencesMap: Record<string, Entry[]>;
+  id?: string;
 };
-const ModelFormServer = ({ collectionId, Fields, collections, entries }: Props) => {
-  return <ModelForm collectionId={collectionId} Fields={Fields} collections={collections} entries={entries}/>;
+
+const ModelFormServer = ({ collectionId, Fields, referencesMap, id }: Props) => {
+  return (
+    <ModelForm
+      collectionId={collectionId}
+      Fields={Fields}
+      referencesMap={referencesMap}
+      id={id ?? ""}
+    />
+  );
 };
 
 export default ModelFormServer;

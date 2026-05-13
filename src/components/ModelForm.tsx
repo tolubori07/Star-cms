@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -30,7 +30,6 @@ import { createEntryProxy, editEntryProxy } from "../lib/entryActionProxy";
 import { getPublicMediaUrl } from "@/app/entry/utils";
 import ImageCard from "./ui/image-card";
 import ReferenceField from "./ReferenceField";
-import { getAllEntries } from "@/app/collections/utils";
 
 
 type Props = {
@@ -39,7 +38,7 @@ type Props = {
   defaultValues?: Record<string, any>;
   id: string;
   entry: Entry;
-  entries: Entry[];
+  referencesMap: Record<string,Entry[]>;
 };
 
 const MAX_FILE_SIZE = 1024 * 1024 * 10;
@@ -57,7 +56,7 @@ export default function ModelForm({
   defaultValues,
   id,
   entry,
-  entries,
+  referencesMap
 }: Props) {
   const router = useRouter();
 
@@ -305,7 +304,10 @@ export default function ModelForm({
                       <ReferenceField
                         placeholder={field.placeholder || ""}
                         label={field.label || ""}
-                        entries={entries}
+                        name={field.name}
+                        value={rhfField.value}
+                        onChange={rhfField.onChange}
+                        entries={referencesMap[field.id] ?? []}
                       />
                     ) : null}
                   </FormControl>

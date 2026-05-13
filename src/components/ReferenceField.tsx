@@ -26,23 +26,26 @@ const ReferenceField = ({
   label,
   value,
   onChange,
-  onBlur,
   name,
   entries,
 }: Props) => {
-  console.log("Entries in ReferenceField:", entries);
   return (
     <div className="w-full">
       <Label htmlFor={name}>{label}</Label>
-      <Select>
+      <Select
+        value={value}
+        onValueChange={(val) =>
+          onChange?.({ target: { value: val } } as React.ChangeEvent<HTMLInputElement>)
+        }
+      >
         <SelectTrigger className="w-full max-w-48">
-          <SelectValue placeholder="Select a reference" />
+          <SelectValue placeholder={placeholder || "Select a reference"} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectLabel>{label}</SelectLabel>
             {entries.map((entry: Entry) => (
-              <SelectItem value={entry.name} key={entry.id}>
+              <SelectItem value={entry.id} key={entry.id}>
                 {entry.name}
               </SelectItem>
             ))}
@@ -52,5 +55,4 @@ const ReferenceField = ({
     </div>
   );
 };
-
 export default ReferenceField;
