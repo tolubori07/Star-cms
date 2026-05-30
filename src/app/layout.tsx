@@ -7,6 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AppSideBarServer from "@/components/AppSideBarServer";
 import NavBar from "@/components/NavBarClient";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -45,14 +46,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <AppSideBarServer />
-            <SidebarInset className="bg-bg">
-              <NavBar />
-              <main className="px-4 pt-4">{children}</main>
-              <Toaster />
-            </SidebarInset>
-          </SidebarProvider>
+          <TooltipProvider>
+            <SidebarProvider>
+              <AppSideBarServer />
+              <SidebarInset className="bg-bg">
+                <NavBar />
+                <main className="px-4 pt-4">{children}</main>
+                <Toaster />
+              </SidebarInset>
+            </SidebarProvider>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

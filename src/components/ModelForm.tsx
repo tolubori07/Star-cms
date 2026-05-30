@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -30,7 +30,8 @@ import { createEntryProxy, editEntryProxy } from "../lib/entryActionProxy";
 import { getPublicMediaUrl } from "@/app/entry/utils";
 import ImageCard from "./ui/image-card";
 import ReferenceField from "./ReferenceField";
-
+import MarkDownEditor from "./MarkDownEditor";
+import RichTextEditor from "./tiptap/RichTextEditor";
 
 type Props = {
   Fields: FieldDefinition[];
@@ -38,7 +39,7 @@ type Props = {
   defaultValues?: Record<string, any>;
   id: string;
   entry: Entry;
-  referencesMap: Record<string,Entry[]>;
+  referencesMap: Record<string, Entry[]>;
 };
 
 const MAX_FILE_SIZE = 1024 * 1024 * 10;
@@ -56,7 +57,7 @@ export default function ModelForm({
   defaultValues,
   id,
   entry,
-  referencesMap
+  referencesMap,
 }: Props) {
   const router = useRouter();
 
@@ -72,6 +73,9 @@ export default function ModelForm({
         break;
       case "Number":
         validator = z.coerce.number({ error: "Must be a number" });
+        break;
+      case "Richtext":
+        validator = z.string();
         break;
       case "Boolean":
         validator = z.boolean();
@@ -162,7 +166,6 @@ export default function ModelForm({
         if (error) throw error;
 
         values.img = data.path;
-        console.log(values);
       }
       const res = defaultValues
         ? await editEntryProxy(id, { ...entry, data: values })
@@ -170,7 +173,7 @@ export default function ModelForm({
 
       if (res?.error) {
         toast.error("Failed to create entry");
-        console.log(res?.error);
+        console.error(res?.error);
       } else {
         router.push(`/collections/${collectionId}`);
       }
@@ -248,7 +251,7 @@ export default function ModelForm({
                           />
                         </FormControl>
                         {defaultValues != null &&
-                        defaultValues[field.name] != null ? (
+                          defaultValues[field.name] != null ? (
                           <ImageCard
                             caption="current image"
                             className="mt-12 w-full"
@@ -298,7 +301,11 @@ export default function ModelForm({
                         placeholder={field.placeholder || ""}
                         label={field.label}
                         {...rhfField}
-                        value={typeof rhfField.value === "string" ? rhfField.value : ""}
+                        value={
+                          typeof rhfField.value === "string"
+                            ? rhfField.value
+                            : ""
+                        }
                       />
                     ) : field.type === "Reference" ? (
                       <ReferenceField
@@ -308,6 +315,34 @@ export default function ModelForm({
                         value={rhfField.value}
                         onChange={rhfField.onChange}
                         entries={referencesMap[field.id] ?? []}
+                      />
+                    ) : field.type === "Richtext" ? (
+                      <Controller
+                        control={form.control}
+                        name={field.name}
+                        render={({ field: ctrl }) => (
+                          <RichTextEditor
+                            label={field.label}
+                            value={ctrl.value}
+                            onChange={ctrl.onChange}
+                            onBlur={ctrl.onBlur}
+                            name={field.name}
+                          />
+                        )}
+                      />
+                    ) : field.type === "Markdown" ? (
+                      <Controller
+                        control={form.control}
+                        name={field.name}
+                        render={({ field: ctrl }) => (
+                          <MarkDownEditor
+                            label={field.label}
+                            value={ctrl.value}
+                            onChange={ctrl.onChange}
+                            onBlur={ctrl.onBlur}
+                            name={field.name}
+                          />
+                        )}
                       />
                     ) : null}
                   </FormControl>

@@ -156,16 +156,18 @@ type field = {
   name: string;
   label: string;
   type:
-    | "Text"
-    | "String"
-    | "Date"
-    | "Boolean"
-    | "Number"
-    | "Image"
-    | "Colour"
-    | "Telephone"
-    | "Time"
-    | "File";
+  | "Text"
+  | "String"
+  | "Date"
+  | "Boolean"
+  | "Number"
+  | "Image"
+  | "Colour"
+  | "Telephone"
+  | "Time"
+  | "File"
+  | "Richtext"
+  | "Markdown";
   placeholder: string;
   required: boolean;
 };
@@ -200,23 +202,19 @@ export const getAllCollections = async (
         NOT: { id: collectionId },
       },
     });
-    console.log(collections);
     return collections;
   } catch (err) {
     console.error(err);
   }
 };
 
-export const getAllEntries = async (
-  collectionId: string,
-) => {
+export const getAllEntries = async (collectionId: string) => {
   try {
     const entries = await prisma.entry.findMany({
       where: {
         collectionId: collectionId,
-      }
+      },
     });
-    console.log(entries);
     return entries;
   } catch (err) {
     console.error(err);

@@ -88,7 +88,9 @@ enum FieldType {
   Range
   Telephone //done
   Time //done
-  Reference
+  Reference//done
+  Richtext
+  Markdown
 }
 
 model ApiKey {

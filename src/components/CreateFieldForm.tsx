@@ -10,6 +10,7 @@ import {
   CaseSensitiveIcon,
   Clock,
   File,
+  Hash,
   Image,
   Link,
   ListOrderedIcon,
@@ -17,6 +18,7 @@ import {
   PaintBucket,
   Phone,
   Text,
+  Type,
 } from "lucide-react";
 import {
   Dialog,
@@ -93,7 +95,7 @@ export default function CreateFieldForm({
       if (formState.type === "Reference") {
         formData.append(
           "referenceCollectionId",
-          formState.referenceCollectionId
+          formState.referenceCollectionId,
         );
         formData.append("multiple", String(formState.multiple));
       }
@@ -103,7 +105,7 @@ export default function CreateFieldForm({
       formData.append("type", formState.type);
       formData.append("required", String(formState.required));
       const res = await createField(formData, modelId).then(() =>
-        setOpen(false)
+        setOpen(false),
       );
       //@ts-ignore
       if (res?.error) {
@@ -126,6 +128,20 @@ export default function CreateFieldForm({
       multiple: false,
     });
   };
+  const FIELD_TYPE_OPTIONS = [
+    { value: "Text", label: "Text", icon: Text },
+    { value: "String", label: "String", icon: CaseSensitiveIcon },
+    { value: "Boolean", label: "Boolean", icon: BinaryIcon },
+    { value: "Number", label: "Number", icon: ListOrderedIcon },
+    { value: "Date", label: "Date", icon: Calendar },
+    { value: "Image", label: "Image", icon: Image },
+    { value: "Colour", label: "Color", icon: PaintBucket },
+    { value: "Telephone", label: "Phone", icon: Phone },
+    { value: "Time", label: "Time", icon: Clock },
+    { value: "File", label: "File", icon: File },
+    { value: "Richtext", label: "Richtext", icon: Type },
+    { value: "Markdown", label: "Markdown", icon: Hash },
+  ] as const;
 
   return (
     <>
@@ -207,50 +223,17 @@ export default function CreateFieldForm({
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Select a type</SelectLabel>
-                      <SelectItem value="Text">
-                        <Text />
-                        Text
-                      </SelectItem>
-                      <SelectItem value="String">
-                        <CaseSensitiveIcon />
-                        String
-                      </SelectItem>
-                      <SelectItem value="Boolean">
-                        <BinaryIcon />
-                        Boolean
-                      </SelectItem>
-                      <SelectItem value="Number">
-                        <ListOrderedIcon />
-                        Number
-                      </SelectItem>
-                      <SelectItem value="Date">
-                        <Calendar />
-                        Date
-                      </SelectItem>
-                      <SelectItem value="Image">
-                        <Image />
-                        Image
-                      </SelectItem>
-                      <SelectItem value="Colour">
-                        <PaintBucket />
-                        Color
-                      </SelectItem>
-                      <SelectItem value="Telephone">
-                        <Phone />
-                        Phone
-                      </SelectItem>
-                      <SelectItem value="Time">
-                        <Clock />
-                        Time
-                      </SelectItem>
-                      <SelectItem value="File">
-                        <File />
-                        File
-                      </SelectItem>
-                      <SelectItem value="Reference">
-                        <Link />
-                        Reference
-                      </SelectItem>
+                      {FIELD_TYPE_OPTIONS.map((opt) => {
+                        const Icon = opt.icon;
+                        return (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            <div className="flex items-center gap-2">
+                              <Icon className="h-4 w-4" />
+                              {opt.label}
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

@@ -17,11 +17,13 @@ import {
   CaseSensitiveIcon,
   Clock,
   File,
+  Hash,
   Image,
   ListOrderedIcon,
   PaintBucket,
   Phone,
   Text,
+  Type,
 } from "lucide-react";
 import { Checkbox } from "./ui/checkbox";
 import {
@@ -60,6 +62,8 @@ const FIELD_TYPE_OPTIONS = [
   { value: "Telephone", label: "Phone", icon: Phone },
   { value: "Time", label: "Time", icon: Clock },
   { value: "File", label: "File", icon: File },
+  { value: "Richtext", label: "Richtext", icon: Type },
+  { value: "Markdown", label: "Markdown", icon: Hash },
 ] as const;
 
 type Props = { Field: FieldDefinition; children: ReactNode };
