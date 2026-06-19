@@ -187,7 +187,7 @@ export default function ModelForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mx-auto mt-6 flex w-full max-w-2xl flex-col items-center"
+        className="mx-auto mt-6 flex w-full max-w-6xl flex-col items-center"
       >
         <div className=" w-full space-y-6 rounded-lg">
           {/* Entry name */}

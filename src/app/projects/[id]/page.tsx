@@ -1,10 +1,7 @@
 import { getUserOrCreate } from "@/utils/supabase/server";
 import { getCollections, getProject } from "../utils";
 import CreateCollectionForm from "@/components/CreateCollectionForm";
-import CreateModelForm from "@/components/CreateModelForm";
 import CollectionList from "@/components/CollectionList";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ModelList from "@/components/ModelList";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;

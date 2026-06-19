@@ -29,6 +29,7 @@ const UndoToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
 						disabled={!editor?.can().chain().focus().undo().run()}
 						ref={ref}
 						{...props}
+            type="button"
 					>
 						{children ?? <Undo2 className="h-4 w-4" />}
 					</Button>

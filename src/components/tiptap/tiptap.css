@@ -289,7 +289,7 @@ margin: var(--editor-spacing-4) 0 var(--editor-spacing-2);
   margin: var(--editor-spacing-6) 0;
   border: 1px solid var(--editor-border-default);
   border-radius: 8px;
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .ProseMirror th {

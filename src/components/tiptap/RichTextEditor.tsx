@@ -104,7 +104,6 @@ function RichTextEditor({
     },
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
-      console.log(editor.getHTML());
     },
     onBlur: () => {
       onBlur?.();
@@ -124,7 +123,7 @@ function RichTextEditor({
       <Label htmlFor={name}>{label}</Label>
       <div
         className={cn(
-          "relative max-h-[calc(100dvh-6rem)]  w-full overflow-hidden overflow-y-scroll border bg-card pb-[60px] sm:pb-0",
+          "relative max-h-[calc(100dvh-6rem)]  w-full overflow overflow-y-scroll border bg-card pb-[60px] sm:pb-0",
           className,
         )}
       >

@@ -21,6 +21,7 @@ const HorizontalRuleToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
 					<Button
 						variant="ghost"
 						size="icon"
+            type="button"
 						className={cn("h-8 w-8 p-0 sm:h-9 sm:w-9", className)}
 						onClick={(e) => {
 							editor?.chain().focus().setHorizontalRule().run();

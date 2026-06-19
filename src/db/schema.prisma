@@ -83,14 +83,12 @@ enum FieldType {
   Image //done
   Colour //done
   File //later
-  Radio //later 
-  Select
-  Range
+  Select//later
   Telephone //done
   Time //done
-  Reference//done
-  Richtext
-  Markdown
+  Reference //done
+  Richtext //done
+  Markdown //done
 }
 
 model ApiKey {
