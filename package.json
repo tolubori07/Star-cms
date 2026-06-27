@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 --turbopack",
-    "build": "next build",
+    "build": "prisma generate --schema=src/db/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint",
     "migrate": "bunx prisma generate && env $(cat .env.local | xargs) bunx prisma migrate dev"
