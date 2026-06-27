@@ -16,7 +16,7 @@ export async function getUserProjects(userId: string): Promise<
       ownerId: userId,
     },
   });
-  return projects;
+  return userId != null ? projects : []
 }
 
 export async function createProject(formData: FormData) {
