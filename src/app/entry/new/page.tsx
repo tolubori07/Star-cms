@@ -7,14 +7,15 @@ import ModelFormServer from "@/components/ModelFormServer";
 import { getAllCollections, getAllEntries } from "@/app/collections/utils";
 
 type Props = {
-  searchParams: {
+  searchParams: Promise<{
     collectionId?: string;
     modelId?: string;
-  };
+  }>;
 };
 
 const page = async ({ searchParams }: Props) => {
-  const { collectionId, modelId } = searchParams;
+  const { collectionId, modelId } = await searchParams;
+
   if (!collectionId || !modelId) {
     return notFound();
   }
@@ -31,18 +32,18 @@ const page = async ({ searchParams }: Props) => {
       referencesMap[field.id] = entries ?? [];
     }
   }
-return (
-  <div className="w-full">
-    <h1 className="text-center text-foreground text-2xl">
-      Entry for {collection.name}
-    </h1>
-    <ModelFormServer
-      Fields={fields}
-      collectionId={collectionId}
-      referencesMap={referencesMap}
-    />
-  </div>
-);
+  return (
+    <div className="w-full">
+      <h1 className="text-center text-foreground text-2xl">
+        Entry for {collection.name}
+      </h1>
+      <ModelFormServer
+        Fields={fields}
+        collectionId={collectionId}
+        referencesMap={referencesMap}
+      />
+    </div>
+  );
 };
 
 export default page;
