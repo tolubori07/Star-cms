@@ -32,6 +32,7 @@ import ImageCard from "./ui/image-card";
 import ReferenceField from "./ReferenceField";
 import MarkDownEditor from "./MarkDownEditor";
 import RichTextEditor from "./tiptap/RichTextEditor";
+import { useState } from "react";
 
 type Props = {
   Fields: FieldDefinition[];
@@ -60,6 +61,8 @@ export default function ModelForm({
   referencesMap,
 }: Props) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = !!defaultValues;
 
   // Build Zod schema dynamically
   const schemaShape: Record<string, any> = {};
@@ -75,6 +78,7 @@ export default function ModelForm({
         validator = z.coerce.number({ error: "Must be a number" });
         break;
       case "Richtext":
+      case "Markdown":
         validator = z.string();
         break;
       case "Boolean":
@@ -91,27 +95,35 @@ export default function ModelForm({
           .regex(/^(?:\+?\d[\d\s()-]*)$/, "Invalid phone number format");
         break;
       case "Image":
+        // On edit, the value can be an existing path string or a new FileList
         validator = z
-          .custom<FileList>(
+          .custom<FileList | string>(
             (val) => {
-              if (typeof window === "undefined") return true; // Skip on server
+              if (typeof window === "undefined") return true;
+              if (typeof val === "string") return true; // existing path
               return val instanceof FileList;
             },
-            { message: "Input must be a File" },
-          )
-          .refine((files) => files && (files as FileList).length > 0, {
-            message: `${field.label} is required`,
-          })
-          .refine(
-            (files) => files && (files as FileList)[0]?.size <= MAX_FILE_SIZE,
-            `Max image size is 10MB`,
+            { message: "Input must be a file" },
           )
           .refine(
-            (files) =>
-              files &&
-              ACCEPTED_IMAGE_MIME_TYPES.includes((files as FileList)[0]?.type),
-            "Only .jpg, .jpeg, .png and .webp formats are supported.",
-          );
+            (val) => {
+              if (isEditing && typeof val === "string" && val.length > 0)
+                return true; // existing image, skip required check
+              return val instanceof FileList && val.length > 0;
+            },
+            { message: `${field.label} is required` },
+          )
+          .refine((val) => {
+            if (typeof val === "string") return true;
+            return val instanceof FileList && val[0]?.size <= MAX_FILE_SIZE;
+          }, "Max image size is 10MB")
+          .refine((val) => {
+            if (typeof val === "string") return true;
+            return (
+              val instanceof FileList &&
+              ACCEPTED_IMAGE_MIME_TYPES.includes(val[0]?.type)
+            );
+          }, "Only .jpg, .jpeg, .png and .webp formats are supported.");
         break;
       default:
         validator = z.any();
@@ -128,10 +140,26 @@ export default function ModelForm({
     schemaShape[field.name] = validator;
   });
 
-  // Add "name" for Entry name
   schemaShape["name"] = z.string().min(1, "Entry name is required");
 
   const formSchema = z.object(schemaShape);
+
+  // Normalise defaultValues — convert strings back to the right types
+  const normalisedDefaults = Object.fromEntries(
+    Object.entries(defaultValues ?? {}).map(([key, value]) => {
+      const field = Fields.find((f) => f.name === key);
+      if (field?.type === "Date" && typeof value === "string") {
+        return [key, new Date(value)];
+      }
+      if (field?.type === "Richtext" && typeof value !== "string") {
+        return [key, ""];
+      }
+      if (field?.type === "Image" && typeof value === "string") {
+        return [key, value]; // keep existing path as string
+      }
+      return [key, value];
+    }),
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -143,43 +171,64 @@ export default function ModelForm({
         },
         { name: "" } as Record<string, any>,
       ),
-      ...defaultValues,
+      ...normalisedDefaults,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsSubmitting(true);
     try {
       const supabase = createClient();
 
-      if (values.img instanceof FileList && values.img.length > 0) {
-        const file = values.img[0];
+      // Handle all image fields dynamically by field name
+      for (const field of Fields) {
+        if (field.type === "Image") {
+          const fileList = values[field.name];
+          if (fileList instanceof FileList && fileList.length > 0) {
+            const file = fileList[0];
+            const filePath = `${collectionId}/${Date.now()}-${file.name}`;
 
-        const filePath = `${collectionId}/${Date.now()}-${file.name}`;
+            const { data, error } = await supabase.storage
+              .from("media")
+              .upload(filePath, file, {
+                cacheControl: "3600",
+                contentType: file.type,
+              });
 
-        const { data, error } = await supabase.storage
-          .from("media")
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            contentType: file.type,
-          });
+            if (error) throw error;
 
-        if (error) throw error;
-
-        values.img = data.path;
+            values[field.name] = data.path;
+          } else if (
+            typeof fileList === "string" ||
+            defaultValues?.[field.name]
+          ) {
+            // Keep existing image path if no new file selected
+            values[field.name] =
+              typeof fileList === "string"
+                ? fileList
+                : defaultValues?.[field.name];
+          }
+        }
       }
-      const res = defaultValues
+
+      const res = isEditing
         ? await editEntryProxy(id, { ...entry, data: values })
         : await createEntryProxy(collectionId, values);
 
       if (res?.error) {
-        toast.error("Failed to create entry");
-        console.error(res?.error);
+        toast.error("Failed to save entry", {
+          description: String(res.error),
+        });
+        console.error(res.error);
       } else {
+        toast.success(isEditing ? "Entry updated" : "Entry created");
         router.push(`/collections/${collectionId}`);
       }
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -189,7 +238,7 @@ export default function ModelForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="mx-auto mt-6 flex w-full max-w-6xl flex-col items-center"
       >
-        <div className=" w-full space-y-6 rounded-lg">
+        <div className="w-full space-y-6 rounded-lg">
           {/* Entry name */}
           <FormField
             control={form.control}
@@ -250,17 +299,14 @@ export default function ModelForm({
                             }}
                           />
                         </FormControl>
-                        {defaultValues != null &&
-                          defaultValues[field.name] != null ? (
+                        {defaultValues?.[field.name] && (
                           <ImageCard
-                            caption="current image"
-                            className="mt-12 w-full"
+                            caption="Current image"
+                            className="mt-4 w-full"
                             imageUrl={getPublicMediaUrl(
                               defaultValues[field.name],
                             )}
-                          ></ImageCard>
-                        ) : (
-                          ""
+                          />
                         )}
                       </div>
                     ) : field.type === "Boolean" ? (
@@ -352,8 +398,12 @@ export default function ModelForm({
             />
           ))}
 
-          <Button type="submit" className="w-full">
-            Save Entry
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting
+              ? "Saving..."
+              : isEditing
+                ? "Update Entry"
+                : "Create Entry"}
           </Button>
         </div>
       </form>
